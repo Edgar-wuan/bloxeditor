@@ -1,0 +1,759 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+
+<!--  by 白篮 AlbertZ -->
+
+<head>
+    <title>Blox Editor</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="core.js"></script>
+    <script src="block-basic.js"></script>
+    <script src="block-box3.js"></script>
+    <script src="javascript-compressed.js"></script>
+    <script src="zh-hans.js"></script>
+    <script src="util.js"></script>
+    <script src="custom-renderer.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@1.0.0/dist/css/mdui.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.2.0/styles/default.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.0/dist/js/mdui.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+</head>
+
+<body>
+    <div class="overlay" onclick="closePopup()"></div>
+    <div class="mdui-dialog" id="dialog">
+    </div>
+    <div class="mdui-appbar">
+        <div class="mdui-toolbar mdui-color-grey-800" style="height: 50px !important;">
+            <span class="mdui-typo-title" id="title" style="font-size: 17px;">Blox Editor 测试版</span>
+            <div class="mdui-toolbar-spacer"></div>
+            <input type="file" id="files" style="display: none" onchange="openFile()" accept=".blox">
+            <button class="mdui-btn mdui-btn-icon" id="btn-open" onclick="document.getElementById('files').click();" mdui-tooltip="{content: '打开项目'}"><i class="mdui-icon material-icons">folder_open</i></button>
+            <button class="mdui-btn mdui-btn-icon" id="btn-down" onclick="downloadFile()" mdui-tooltip="{content: '导出项目'}"><i class="mdui-icon material-icons">file_download</i></button>
+            <button class="mdui-btn mdui-btn-icon" onclick="clearWs()" mdui-tooltip="{content: '清除项目'}"><i class="mdui-icon material-icons">layers_clear</i></button>
+            <button class="mdui-btn mdui-btn-icon" onclick="saveWs()" mdui-tooltip="{content: '保存项目'}"><i class="mdui-icon material-icons">save</i></button>
+            <button class="mdui-btn mdui-btn-icon" onclick="showJs()" mdui-tooltip="{content: '转换代码'}"><i class="mdui-icon material-icons">code</i></button>
+            <button class="mdui-btn mdui-btn-icon" onclick="runCode()" mdui-tooltip="{content: '运行程序'}"><i class="mdui-icon material-icons">play_arrow</i></button>
+            <button class="mdui-btn mdui-btn-icon" onclick="aboutWin();" mdui-tooltip="{content: '关于'}"><i class="mdui-icon material-icons">content_copy</i></button>
+        </div>
+    </div>
+    <div id="blocklyDiv" style="height: calc(100vh - 60px); width: calc(100vw - 5px);">
+        <!-- 定义编辑器主题大小 -->
+        <xml id="toolbox" style="display: none">
+            <category name="逻辑" colour="%{BKY_LOGIC_HUE}">
+                <!-- 一堆代码盒 -->
+                <block type="controls_if">
+                </block>
+                <block type="controls_if">
+                    <mutation else="1"></mutation>
+                </block>
+                <block type="controls_if">
+                    <mutation elseif="1" else="1"></mutation>
+                </block>
+                <block type="logic_compare">
+                </block>
+                <block type="logic_operation">
+                </block>
+                <block type="logic_negate">
+                </block>
+                <block type="logic_boolean">
+                </block>
+                <block type="logic_null">
+                </block>
+                <block type="logic_ternary">
+                </block>
+            </category>
+            <category name="循环" colour="%{BKY_LOOPS_HUE}">
+                <block type="controls_repeat_ext">
+                    <value name="TIMES">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                10
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="controls_whileUntil">
+                </block>
+                <block type="controls_for">
+                    <value name="FROM">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                1
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="TO">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                10
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="BY">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                1
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="controls_forEach">
+                </block>
+                <block type="controls_flow_statements">
+                </block>
+            </category>
+            <category name="计算" colour="%{BKY_MATH_HUE}">
+                <block type="math_number">
+                    <field name="NUM">
+                        123
+                    </field>
+                </block>
+                <block type="math_arithmetic">
+                    <value name="A">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                1
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="B">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                1
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_single">
+                    <value name="NUM">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                9
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_trig">
+                    <value name="NUM">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                45
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_constant">
+                </block>
+                <block type="math_number_property">
+                    <value name="NUMBER_TO_CHECK">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                0
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_round">
+                    <value name="NUM">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                3.1
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_on_list">
+                </block>
+                <block type="math_modulo">
+                    <value name="DIVIDEND">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                64
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="DIVISOR">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                10
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_constrain">
+                    <value name="VALUE">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                50
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="LOW">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                1
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="HIGH">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                100
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="math_random_int">
+                    <value name="FROM">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                1
+                            </field>
+                        </shadow>
+                    </value>
+                    <value name="TO">
+                        <shadow type="math_number">
+                            <field name="NUM">
+                                100
+                            </field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+            <category name="文本" colour="%{BKY_TEXTS_HUE}">
+                <block type="text"></block>
+                <block type="text_join"></block>
+                <block type="text_append">
+                    <value name="TEXT">
+                        <shadow type="text"></shadow>
+                    </value>
+                </block>
+                <block type="text_length">
+                    <value name="VALUE">
+                        <shadow type="text">
+                            <field name="TEXT">abc</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="text_isEmpty">
+                    <value name="VALUE">
+                        <shadow type="text">
+                            <field name="TEXT"></field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="text_indexOf">
+                    <value name="VALUE">
+                        <block type="variables_get">
+                            <field name="VAR">文本</field>
+                        </block>
+                    </value>
+                    <value name="FIND">
+                        <shadow type="text">
+                            <field name="TEXT">abc</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="text_charAt">
+                    <value name="VALUE">
+                        <block type="variables_get">
+                            <field name="VAR">文本</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="text_getSubstring">
+                    <value name="STRING">
+                        <block type="variables_get">
+                            <field name="VAR">文本</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="text_changeCase">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">abc</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="text_trim">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">abc</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="text_print">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">abc</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="text_prompt_ext">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">abc</field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+            <category name="变量" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE">
+            </category>
+            <category name="列表" colour="%{BKY_LISTS_HUE}">
+                <block type="lists_create_with">
+                    <mutation items="0"></mutation>
+                </block>
+                <block type="lists_create_with"></block>
+                <block type="lists_repeat">
+                    <value name="NUM">
+                        <shadow type="math_number">
+                            <field name="NUM">5</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="lists_length"></block>
+                <block type="lists_isEmpty"></block>
+                <block type="lists_indexOf">
+                    <value name="VALUE">
+                        <block type="variables_get">
+                            <field name="VAR">列表</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="lists_getIndex">
+                    <value name="VALUE">
+                        <block type="variables_get">
+                            <field name="VAR">列表</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="lists_setIndex">
+                    <value name="LIST">
+                        <block type="variables_get">
+                            <field name="VAR">列表</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="lists_getSublist">
+                    <value name="LIST">
+                        <block type="variables_get">
+                            <field name="VAR">列表</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="lists_split">
+                    <value name="DELIM">
+                        <shadow type="text">
+                            <field name="TEXT">,</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="lists_sort"></block>
+            </category>
+            <category name="输入" colour="%{BKY_TEXTS_HUE}">
+                <block type="text"></block>
+                <block type="text_prompt_ext">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">输入</field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+            <category name="函数" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE">
+            </category>
+            <category name="调试" colour="200">
+                <block type="debug_out">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">调试中...</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="debug_warn">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">警告提示</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="debug_error">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">错误</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="debug_clear">
+                </block>
+                <block type="debug_comment">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">说明</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="debug_t">
+                </block>
+                <block type="debug_te">
+                </block>
+            </category>
+            <sep></sep>
+            <category name="通用" colour="10">
+                <block type="b3_color_rgb">
+                </block>
+                <block type="b3_color_rgba">
+                </block>
+                <block type="b3_vector_3">
+                </block>
+                <block type="b3_async">
+                </block>
+                <block type="b3_sleep">
+                    <value name="TIME">
+                        <shadow type="math_number">
+                            <field name="NUM">1</field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+            <category name="世界" colour="120">
+                <block type="b3world_project_name">
+                </block>
+                <block type="b3world_current_tick">
+                </block>
+                <block type="b3world_say">
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">你好，世界！</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_create_entity">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT"></field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_add_zone">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT"></field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_remove_zone">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT"></field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_query">
+                    <value name="CONFIG">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_query_all">
+                    <value name="CONFIG">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_sound">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">audio/audio.mp3</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3world_weather">
+                </block>
+            </category>
+            <category name="物理" colour="320">
+                <label text="正在开发中......"></label>
+            </category>
+            <category name="玩家" colour="190">
+                <block type="b3player_name">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3player_id">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3player_key">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3player_sp">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3player_send">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">你好</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3player_fly">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">player</field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+            <category name="事件" colour="360">
+                <block type="b3event_arg">
+                </block>
+                <block type="b3event_world">
+                </block>
+            </category>
+            <category name="方块" colour="150">
+                <block type="b3voxels_shape">
+                    <value name="CONFIG">
+                        <shadow type="text">
+                            <field name="TEXT"></field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3voxels_set">
+                </block>
+                <block type="b3voxels_get">
+                </block>
+            </category>
+            <category name="实体" colour="30">
+                <block type="b3entity_get">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3entity_mesh">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                    <value name="VALUE">
+                        <shadow type="text">
+                            <field name="TEXT"></field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3entity_pos">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3entity_say">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">你好</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3entity_enableInteract">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3entity_text">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                    <value name="TEXT">
+                        <shadow type="text">
+                            <field name="TEXT">你好</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="b3entity_destroy">
+                    <value name="NAME">
+                        <shadow type="text">
+                            <field name="TEXT">entity</field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+        </xml>
+    </div>
+    <!-- 以上是编辑器 -->
+    <script>
+        // 初始化
+        var storage = window.localStorage;
+        var dialog = new mdui.Dialog('#dialog');
+        // 定义toolbox，回显Workspace
+        var Workspace = Blockly.inject('blocklyDiv',
+            {
+                toolbox: document.getElementById('toolbox'),
+                grid:     // 网格
+                {
+                    spacing: 20,
+                    length: 3,
+                    colour: '#ccc',
+                    snap: true
+                },
+                renderer: 'custom-renderer',
+            });
+        if (storage.workspace) {
+            var xml = Blockly.Xml.textToDom(decodeURIComponent(storage.workspace));
+            Blockly.Xml.domToWorkspace(xml, Workspace);
+        }
+        // 移动端适应
+        if ((navigator.userAgent.match(/(iPhone|iPod|Android|ios|iOS|iPad|Backerry|WebOS|Symbian|Windows Phone|Phone)/i))) {
+            document.getElementById('title').innerHTML = 'BE移动版';
+            document.getElementById('btn-open').style.display = 'none';
+            document.getElementById('btn-down').style.display = 'none';
+        }
+
+        function openFile() {
+            var file = document.getElementById('files').files[0];
+            var name = file.name;
+            var size = file.size;
+            var reader = new FileReader();
+            reader.readAsText(file);
+            try {
+                reader.onload = function () {
+                    Workspace.clear();
+                    var xml = Blockly.Xml.textToDom(decodeURIComponent(this.result));
+                    Blockly.Xml.domToWorkspace(xml, Workspace);
+                }
+                mdui.snackbar({
+                    message: '项目已打开'
+                });
+            } catch (e) {
+                mdui.snackbar({
+                    message: '项目打开失败'
+                });
+            }
+        }
+
+        function downloadFile() {
+            var xml = Blockly.Xml.workspaceToDom(Workspace);
+            var value = Blockly.Xml.domToText(xml);
+            var file = new File([encodeURIComponent(value)], "project.blox", { type: "text/plain;charset=utf-8" });
+            saveAs(file);
+            eval(code);
+            mdui.snackbar({
+                message: '项目已下载，如未弹出下载窗口请反馈给编辑器作者'
+            });
+        }
+
+        function clearWs() {
+            Workspace.clear();
+            if (storage.workspace)
+                storage.workspace = null;
+            mdui.snackbar({
+                message: '项目已清除'
+            });
+        }
+
+        function saveWs() {
+            var xml = Blockly.Xml.workspaceToDom(Workspace);
+            var value = Blockly.Xml.domToText(xml);
+            storage.workspace = encodeURIComponent(value);
+            mdui.snackbar({
+                message: '项目已保存'
+            }); 
+        }
+
+        //定义toolbox里面的block为既定var
+        function showJs() {
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+            var code = Blockly.JavaScript.workspaceToCode(Workspace) + '\n// 由 https://bloxeditor.vercel.app/ 生成';
+            //让varcode等于上面定义的东西
+            var inner = '<pre><code type="language-javascript">' + code + '</code></pre>';
+            showPopup(inner);
+            mdui.snackbar({
+                message: '代码已经生成，如果没有代码弹出框请反馈给编辑器作者'
+            });
+        }
+
+        function aboutWin() {
+            var inner = '<div class="about">\
+                        <h2>Blox Editor 测试版</h2>\
+                        <p>基于Blockly&eblock，支持JavaScript&Box3的mdui主题图形化编辑器</p>\
+                        <p>最新版本：v0.8.2</p>\
+                        <p>作者：Albert钟</p>\
+                        <p>项目地址：https://github.com/Albert-ZCY/blox <br>\
+                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; https://gitee.com/albert_zhong/blox </p>\
+                        <p>分发协议：Apache2.0</p>\
+                        </div>';
+            showPopup(inner);
+        }
+
+        function showPopup(inner) {
+            var popup = document.getElementById('dialog');
+            popup.innerHTML = inner;
+            dialog.open();
+            hljs.highlightAll();
+        }
+
+        function closePopup() {
+            var popup = document.getElementsByTagName('popup')[0];
+            var overlay = document.getElementsByClassName('overlay')[0];
+            overlay.style.display = 'none';
+            popup.style.display = "none";
+        }
+
+        function runCode() {
+            window.LoopTrap = 1000;
+            Blockly.JavaScript.INFINITE_LOOP_TRAP =
+                'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+            var code = Blockly.JavaScript.workspaceToCode(Workspace);
+            //还是var
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+            try {
+                eval(code);
+                mdui.snackbar({
+                    message: '代码已经运行，如果没有代码弹出框请反馈给编辑器作者'
+                });
+            } catch (e) {
+                alert(e);
+                mdui.snackbar({
+                    message: '运行错误'
+                });
+                }
+            }
+    </script>
+</body>
+</html>
